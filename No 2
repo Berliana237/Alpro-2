@@ -1,0 +1,58 @@
+# Definisi graf menggunakan dictionary (adjacency list)
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'C', 'D'],
+    'C': ['A', 'B', 'D'],
+    'D': ['B', 'C']
+}
+
+# 1. Mencari semua trail (jalur tanpa mengulangi edge) dari A ke D
+def find_trails(graph, start, end, path=[], visited_edges=set()):
+    path = path + [start]
+    if start == end:
+        return [path]
+    trails = []
+    for node in graph[start]:
+        edge = tuple(sorted([start, node]))  # Simpan edge unik (karena graf tidak berarah)
+        if edge not in visited_edges:
+            trails.extend(find_trails(graph, node, end, path, visited_edges | {edge}))
+    return trails
+
+trails = find_trails(graph, 'A', 'D')
+print("Trail dari A ke D:")
+for trail in trails:
+    print(" -> ".join(trail))
+
+
+# 2. Mencari semua path (jalur tanpa mengulangi node) dari A ke D
+def find_paths(graph, start, end, path=[]):
+    path = path + [start]
+    if start == end:
+        return [path]
+    paths = []
+    for node in graph[start]:
+        if node not in path:  # Hindari mengunjungi node yang sama
+            paths.extend(find_paths(graph, node, end, path))
+    return paths
+
+paths = find_paths(graph, 'A', 'D')
+print("\nSemua kemungkinan Path dari A ke D:")
+for path in paths:
+    print(" -> ".join(path))
+
+
+# 3. Mencari semua cycle jika A adalah titik awal
+def find_cycles(graph, start, path=[]):
+    path = path + [start]
+    cycles = []
+    for node in graph[start]:
+        if node == path[0] and len(path) > 2:  # Siklik jika kembali ke titik awal
+            cycles.append(path + [node])
+        elif node not in path:
+            cycles.extend(find_cycles(graph, node, path))
+    return cycles
+
+cycles = find_cycles(graph, 'A')
+print("\nSemua kemungkinan Cycle dengan A sebagai titik awal:")
+for cycle in cycles:
+    print(" -> ".join(cycle))
