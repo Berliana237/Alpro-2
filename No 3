@@ -1,0 +1,77 @@
+# Definisi graf menggunakan adjacency list
+graf = {
+    'A': ['B', 'C', 'D'],
+    'B': ['A', 'E', 'G'],
+    'C': ['A', 'K'],
+    'D': ['A', 'F', 'J'],
+    'E': ['B', 'G', 'K'],
+    'F': ['D', 'J', 'K'],
+    'G': ['B', 'E', 'K'],
+    'H': ['G', 'K'],
+    'I': ['J', 'K'],
+    'J': ['D', 'F', 'I'],
+    'K': ['E', 'F', 'H', 'I', 'J']
+}
+
+# Fungsi untuk mencari semua kemungkinan jalur dari titik awal ke tujuan
+def cari_semua_jalur(graf, awal, tujuan, jalur=[]):
+    jalur = jalur + [awal]
+    if awal == tujuan:
+        return [jalur]
+    jalur_jalur = []
+    for simpul in graf[awal]:
+        if simpul not in jalur:
+            jalur_jalur.extend(cari_semua_jalur(graf, simpul, tujuan, jalur))
+    return jalur_jalur
+
+# Fungsi untuk mencari semua siklus yang kembali ke titik awal
+def cari_siklus(graf, awal, jalur=[], siklus=set()):
+    jalur = jalur + [awal]
+    for simpul in graf[awal]:
+        if simpul == jalur[0] and len(jalur) > 2:
+            siklus.add(tuple(jalur + [simpul]))
+        elif simpul not in jalur:
+            cari_siklus(graf, simpul, jalur, siklus)
+    return siklus
+
+# Fungsi untuk mencari jalur terpendek dan terpanjang
+def jalur_terpendek_terpanjang(graf, awal, tujuan):
+    jalur_jalur = cari_semua_jalur(graf, awal, tujuan)
+    if not jalur_jalur:
+        return None, None
+    return min(jalur_jalur, key=len), max(jalur_jalur, key=len)
+
+# Mencetak semua kemungkinan jalur
+print("\nSemua kemungkinan Jalur dari A ke K:")
+for jalur in cari_semua_jalur(graf, 'A', 'K'):
+    print(" -> ".join(jalur))
+
+print("\nSemua kemungkinan Jalur dari G ke J:")
+for jalur in cari_semua_jalur(graf, 'G', 'J'):
+    print(" -> ".join(jalur))
+
+print("\nSemua kemungkinan Jalur dari E ke F:")
+for jalur in cari_semua_jalur(graf, 'E', 'F'):
+    print(" -> ".join(jalur))
+
+# Mencetak semua kemungkinan siklus
+print("\nSemua kemungkinan Siklus dengan A sebagai titik awal:")
+for siklus in cari_siklus(graf, 'A'):
+    print(" -> ".join(siklus))
+
+print("\nSemua kemungkinan Siklus dengan K sebagai titik awal:")
+for siklus in cari_siklus(graf, 'K'):
+    print(" -> ".join(siklus))
+
+# Mencetak circuit terpendek dan terpanjang
+terpendek, terpanjang = jalur_terpendek_terpanjang(graf, 'A', 'K')
+print("\nCircuit terpendek dari A ke K:", " -> ".join(terpendek))
+print("Circuit terpanjang dari A ke K:", " -> ".join(terpanjang))
+
+terpendek, terpanjang = jalur_terpendek_terpanjang(graf, 'G', 'J')
+print("\nCircuit terpendek dari G ke J:", " -> ".join(terpendek))
+print("Circuit terpanjang dari G ke J:", " -> ".join(terpanjang))
+
+terpendek, terpanjang = jalur_terpendek_terpanjang(graf, 'E', 'F')
+print("\nCircuit terpendek dari E ke F:", " -> ".join(terpendek))
+print("Circuit terpanjang dari E ke F:", " -> ".join(terpanjang))
