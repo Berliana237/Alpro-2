@@ -1,58 +1,66 @@
-# Definisi graf menggunakan dictionary (adjacency list)
-graph = {
-    'A': ['B', 'C'],
-    'B': ['A', 'C', 'D'],
-    'C': ['A', 'B', 'D'],
-    'D': ['B', 'C']
+
+
+# Definisi graf sebagai adjacency list
+graf = {
+    'A': ['D'],
+    'B': ['C', 'E', 'D'],
+    'C': ['B', 'F', 'E'],
+    'D': ['A', 'E', 'B'],
+    'E': ['B', 'D', 'F', 'C'],
+    'F': ['C', 'E', 'B']
 }
 
-# 1. Mencari semua trail (jalur tanpa mengulangi edge) dari A ke D
-def find_trails(graph, start, end, path=[], visited_edges=set()):
-    path = path + [start]
-    if start == end:
-        return [path]
-    trails = []
-    for node in graph[start]:
-        edge = tuple(sorted([start, node]))  # Simpan edge unik (karena graf tidak berarah)
-        if edge not in visited_edges:
-            trails.extend(find_trails(graph, node, end, path, visited_edges | {edge}))
-    return trails
+# Fungsi mencari semua kemungkinan path dari start ke end
+def cari_jalur(graf, awal, akhir, jalur=[]):
+    jalur = jalur + [awal]
+    if awal == akhir:
+        return [jalur]
+    semua_jalur = []
+    for simpul in graf[awal]:
+        if simpul not in jalur:  # Hindari mengunjungi simpul yang sama
+            semua_jalur.extend(cari_jalur(graf, simpul, akhir, jalur))
+    return semua_jalur
 
-trails = find_trails(graph, 'A', 'D')
-print("Trail dari A ke D:")
-for trail in trails:
-    print(" -> ".join(trail))
+# 1. Semua kemungkinan Path dari A ke C
+jalur_AkeC = cari_jalur(graf, 'A', 'C')
+print("Semua kemungkinan Path dari A ke C:")
+for jalur in jalur_AkeC:
+    print(" -> ".join(jalur))
 
+# Fungsi mencari semua siklus dari suatu titik awal
+def cari_siklus(graf, awal, jalur=[], siklus=set()):
+    jalur = jalur + [awal]
+    for simpul in graf[awal]:
+        if simpul == jalur[0] and len(jalur) > 2:  # Siklus harus kembali ke awal dan memiliki minimal 3 simpul
+            siklus.add(tuple(jalur + [simpul]))  
+        elif simpul not in jalur:  
+            cari_siklus(graf, simpul, jalur, siklus)
+    return siklus
 
-# 2. Mencari semua path (jalur tanpa mengulangi node) dari A ke D
-def find_paths(graph, start, end, path=[]):
-    path = path + [start]
-    if start == end:
-        return [path]
-    paths = []
-    for node in graph[start]:
-        if node not in path:  # Hindari mengunjungi node yang sama
-            paths.extend(find_paths(graph, node, end, path))
-    return paths
+# 2. Semua kemungkinan Cycle dengan C sebagai titik awal
+siklus_C = cari_siklus(graf, 'C')
+print("\nSemua kemungkinan Cycle dengan C sebagai titik awal:")
+for siklus in siklus_C:
+    print(" -> ".join(siklus))
 
-paths = find_paths(graph, 'A', 'D')
-print("\nSemua kemungkinan Path dari A ke D:")
-for path in paths:
-    print(" -> ".join(path))
+# 3. Semua kemungkinan Cycle dengan B sebagai titik awal
+siklus_B = cari_siklus(graf, 'B')
+print("\nSemua kemungkinan Cycle dengan B sebagai titik awal:")
+for siklus in siklus_B:
+    print(" -> ".join(siklus))
 
+# 4. Circuit terpendek dan terpanjang dari A ke A
+def cari_sirkuit_terpendek_terpanjang(graf, awal):
+    semua_siklus = cari_siklus(graf, awal)
+    siklus_valid = [s for s in semua_siklus if all(s[i+1] in graf[s[i]] for i in range(len(s)-1))]
 
-# 3. Mencari semua cycle jika A adalah titik awal
-def find_cycles(graph, start, path=[]):
-    path = path + [start]
-    cycles = []
-    for node in graph[start]:
-        if node == path[0] and len(path) > 2:  # Siklik jika kembali ke titik awal
-            cycles.append(path + [node])
-        elif node not in path:
-            cycles.extend(find_cycles(graph, node, path))
-    return cycles
+    if not siklus_valid:
+        return None, None
+    terpendek = min(siklus_valid, key=len)  
+    terpanjang = max(siklus_valid, key=len)  
+    return terpendek, terpanjang
 
-cycles = find_cycles(graph, 'A')
-print("\nSemua kemungkinan Cycle dengan A sebagai titik awal:")
-for cycle in cycles:
-    print(" -> ".join(cycle))
+terpendek, terpanjang = cari_sirkuit_terpendek_terpanjang(graf, 'A')
+print("\nSirkuit terpendek dari A ke A:", " -> ".join(terpendek) if terpendek else "Tidak ada")
+print("Sirkuit terpanjang dari A ke A:", " -> ".join(terpanjang) if terpanjang else "Tidak ada")
+
