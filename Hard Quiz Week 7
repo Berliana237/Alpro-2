@@ -1,0 +1,75 @@
+def generate_itinerary():
+    # Anggaran maksimal
+    max_budget = 15_000_000  
+
+    # Biaya tetap (nama, biaya, hari)
+    items = [
+        ("Transportasi dari Rumah ke Bandara", 150_000, "Hari 1"),
+        ("Tiket Pesawat", 7_000_000, "Hari 1"),
+        ("Transportasi Kuala Lumpur", 170_000, "Hari 1"),
+        ("Wisata - Petronas Twin Towers", 50_000, "Hari 1"),
+        ("Makanan - Restoran Nasi Kandar", 100_000, "Hari 1"),
+        ("Hotel - Kuala Lumpur Grand Hotel (1 malam)", 500_000, "Hari 1"),
+        
+        ("Transportasi Seoul", 240_000, "Hari 2"),
+        ("Wisata - Gyeongbokgung Palace", 100_000, "Hari 2"),
+        ("Makanan - Korean BBQ Restaurant", 200_000, "Hari 2"),
+        ("Hotel - Seoul Central Hotel (1 malam)", 800_000, "Hari 2"),
+        
+        ("Transportasi Sapporo", 300_000, "Hari 3"),
+        ("Wisata - Sapporo Clock Tower", 75_000, "Hari 3"),
+        ("Makanan - Ramen Sapporo", 150_000, "Hari 3"),
+        ("Hotel - Sapporo Snow Hotel (1 malam)", 700_000, "Hari 3"),
+
+        ("Tiket Pesawat Pulang", 7_000_000, "Hari Terakhir"),
+        ("Transportasi dari Bandara ke Rumah", 150_000, "Hari Terakhir"),
+    ]
+
+    # Kendala perjalanan yang terjadi
+    kendala = {
+        "Hari 1": ["Hujan deras di sore hari"],
+        "Hari 2": ["Pesawat delay 2 jam"],
+        "Hari 3": ["Cuaca sangat dingin, harus beli jaket tambahan"],
+        "Hari Terakhir": ["Antrian panjang di imigrasi"],
+    }
+
+    # Output rencana perjalanan
+    print("\n✅ *Rencana Liburan Per Hari:*\n")
+
+    itinerary = {}
+    total_cost = 0
+
+    # Backtracking bisa diterapkan di sini:
+    # 1. Menambahkan destinasi satu per satu
+    # 2. Jika total biaya melebihi max_budget, batalkan langkah terakhir (backtrack)
+    # 3. Jika anggaran cukup, lanjutkan ke destinasi berikutnya
+    # 4. Jika tidak ada solusi lain, kembali ke langkah sebelumnya
+
+    for item, cost, day in items:
+        if day not in itinerary:
+            itinerary[day] = []
+        
+        # Cek apakah biaya total masih dalam anggaran
+        if total_cost + cost > max_budget:
+            # Jika melebihi anggaran, batalkan (backtrack) dan coba opsi lain
+            print(f"❌ {item} tidak dimasukkan karena melebihi anggaran.")
+            continue
+
+        itinerary[day].append(f"- {item}: Rp{cost:,}")
+        total_cost += cost  # Tambahkan biaya ke total
+
+    for day in sorted(itinerary.keys()):
+        print(f"📅 *{day} Selesai*")
+        for detail in itinerary[day]:
+            print(detail)
+        
+        if day in kendala:
+            print("\n⚠ *Kendala yang Terjadi:*")
+            for issue in kendala[day]:
+                print(f"- {issue}")
+        print()
+
+    print(f"💰 *Total Biaya:* Rp{total_cost:,}")
+
+# Jalankan program
+generate_itinerary()
